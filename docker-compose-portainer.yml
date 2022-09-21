@@ -1,0 +1,55 @@
+version: '3.2'
+
+services:
+  agent:
+    image: portainer/agent:2.10.0
+    environment:
+      AGENT_CLUSTER_ADDR: tasks.agent
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /var/lib/docker/volumes:/var/lib/docker/volumes
+    networks:
+      - router-net
+    deploy:
+      mode: global
+
+  portainer:
+    image: portainer/portainer-ce:2.9.3
+    command: -H tcp://tasks.agent:9001 --tlsskipverify
+    ports:
+      - "9443:9443"
+      - "9000:9000"
+      - "8000:8000"
+    volumes:
+      - nfs-data-portainer:/data
+    deploy:
+      mode: replicated
+      replicas: 1
+      labels:
+        ### Traefik-v1 (http)
+        - traefik.enable=true
+        - traefik.backend=portainer
+        - traefik.docker.network=router-net
+        - traefik.frontend.rule=Host:${DNS}
+        - traefik.port=9000
+
+        ### Traefik-v2 (https)
+        #- traefik.enable=true
+        - traefik.docker.network=router-net
+        - traefik.constraint-label=router-net
+        - traefik.http.routers.portainer-https.rule=Host(`${DNS?Variable not set}`)
+        - traefik.http.routers.portainer-https.entrypoints=https
+        - traefik.http.routers.portainer-https.tls=true
+        - traefik.http.services.portainer.loadbalancer.server.port=9000
+
+networks:
+  router-net:
+    external:
+      name: router-net
+
+volumes:
+  nfs-data-portainer:
+    driver_opts:
+      type: "nfs"
+      o: "addr=${NFS_SERVER},nolock,soft,rw"
+      device: ":/nfs-data/portainer"

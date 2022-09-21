@@ -1,0 +1,9 @@
+
+# Dynamic configuration
+# in configuration/certificates.yaml
+tls:
+  certificates:
+    - certFile: /certs/dns.crt
+      keyFile: /certs/dns.key
+
+# and so on
