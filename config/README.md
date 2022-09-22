@@ -23,7 +23,10 @@ Cluster Swarm with Portainer, Traefik HTTP/HTTPS and a NFS Server
 `service nfs status`
 ### Create path to Portainer volume
 `sudo mkdir nfs-data && cd nfs-data`
-`sudo mkdir portainer
+`sudo mkdir portainer && cd ..`
+`sudo chmod -R 777 .`
+### Create a map to volume /nfs-data in NFS
+`echo "/nfs-data *(rw,sync,no_root_squash,no_subtree_check,insecure)" > /etc/exports`
 
 ## Cluster Swarm
 ### Choice a vm to beginning config
