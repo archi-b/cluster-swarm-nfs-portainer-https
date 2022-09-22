@@ -35,7 +35,7 @@ services:
 
         ### Traefik-v2 (https)
         #- traefik.enable=true
-        - traefik.docker.network=router-net
+        #- traefik.docker.network=router-net
         - traefik.constraint-label=router-net
         - traefik.http.routers.router-net.rule=Host(`${DNS?Variable not set}`)
         - traefik.http.routers.router-net.entrypoints=https
