@@ -33,12 +33,12 @@ services:
         - traefik.http.routers.router-net-https.rule=Host(`${DNS?Variable not set}`)
 
         - traefik.http.routers.router-net-https.entrypoints=https
-        - traefik.http.routers.router-net-https.tls=true
+        #- traefik.http.routers.router-net-https.tls=true
         
         # Use the special Traefik service api@internal with the web UI/Dashboard
         - traefik.http.routers.router-net-https.service=api@internal
         - traefik.http.routers.router-net-https.middlewares=admin-auth
-        - traefik.http.services.router-net.loadbalancer.server.port=8080
+        - traefik.http.services.traefik-ssl.loadbalancer.server.port=443
     configs:
       - source: traefik_config
         target: /configuration/certificates.yaml
@@ -78,6 +78,7 @@ services:
         - traefik.port=8080
         - traefik.docker.network=router-net
         - traefik.redirectorservice.frontend.entryPoints=http
+        - traefik.http.services.traefik.loadbalancer.server.port=8080
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
     command: >
