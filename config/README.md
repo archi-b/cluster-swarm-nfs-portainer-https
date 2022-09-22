@@ -1,16 +1,45 @@
+# cluster-swarm-nfs-portainer-https
+Cluster Swarm with Portainer, Traefik HTTP/HTTPS and a NFS Server
 
-# Start a Cluster Swarm
-### $ docker swarm init
+# First see how to prepare infrastruture
+### See https://github.com/archi-b/cluster-swarm.git
 
-# Create a network "router-net"
-### $ docker network create -d overlay --subnet 10.1.0.0/16 router-net
+## Start a Vagrant Nodes
+`vagrant up`
+### To view nodes
+`vagrant global-status`
 
-# Deploy Stack "Traefik"
-### $ DNS=traefik.dns.com.br USER=admin HASHED_PASSWORD=$(openssl passwd -apr1 admin123) docker stack deploy -c docker-compose.yml traefik
+## Inside a VM node
+### Choice a vm to be a NFS Server (Setting to NFS_SERVER variable to use in Portainer Stack)
+`vagrant ssh node-04`
+### Install NFS Server
+`sudo yum -y install nfs-utils nfs-utils-lib`
+`sudo chkconfig nfs on`
+`sudo service rpcbind start`
+`sudo service nfs start`
+`sudo service nfslock start`
+`sudo service rpcbind start`
+### View NFS after install
+`service nfs status`
+### Create path to Portainer volume
+`sudo mkdir nfs-data && cd nfs-data`
+`sudo mkdir portainer
 
-# Deploy Stack "Portainer-ce"
-### $ DNS=portainer.dns.com.br docker stack deploy -c docker-compose.yml portainer-ce
+## Cluster Swarm
+### Choice a vm to beginning config
+`vagrant ssh node-01`
+`git clone https://github.com/archi-b/cluster-swarm-nfs-portainer-https.git`
+`cd cluster-swarm-nfs-portainer-https/`
 
-# Configure /etc/hosts in your host
-### # echo "127.0.0.1       portainer.dns.com.br" >> /etc/hosts
-### # echo "127.0.0.1       traefik.local.btfinanceira.com.br" >> /etc/hosts
+### Config a first Swarm node
+`sudo docker swarm init --advertise-addr 192.168.56.10`
+### Create a network "router-net"
+`docker network create -d overlay --subnet 10.1.0.0/16 router-net`
+### Deploy Stack "Traefik"
+`DNS=traefik.vm.com.br USER=admin HASHED_PASSWORD=$(openssl passwd -apr1 admin123) docker stack deploy -c docker-compose-traefik.yml traefik`
+### Deploy Stack "Portainer-ce"
+`DNS=portainer.vm.com.br NFS_SERVER=192.168.56.13 docker stack deploy -c docker-compose-portainer.yml portainer-ce`
+
+# Configure /etc/hosts in all nodes
+`echo "127.0.0.1       portainer.vm.com.br" >> /etc/hosts`
+`echo "127.0.0.1       traefik.vm.com.br" >> /etc/hosts`
