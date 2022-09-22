@@ -41,6 +41,7 @@ services:
         - traefik.constraint-label=router-net
         - traefik.http.routers.router-net.rule=Host(`${DNS?Variable not set}`)
         - traefik.http.routers.router-net.entrypoints=https
+        - traefik.http.routers.portainer-https.tls
         - traefik.http.services.portainer.loadbalancer.server.port=9000
 
 networks:
