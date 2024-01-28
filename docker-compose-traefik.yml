@@ -72,6 +72,9 @@ services:
       - 80:80
     deploy:
       mode: global
+      placement:
+        constraints:
+          - node.role == manager
       labels:
         - traefik.frontend.rule=Host:${DNS}
         - traefik.enable=true
@@ -87,7 +90,7 @@ services:
       --docker.watch
       --docker.exposedbydefault=false
       --entrypoints='Name:http Address::80'
-      --logLevel=INFO
+      --logLevel=DEBUG
       --accessLog
       --api
       --metrics

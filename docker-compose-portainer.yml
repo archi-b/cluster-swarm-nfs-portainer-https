@@ -39,9 +39,9 @@ services:
         #- traefik.enable=true
         #- traefik.docker.network=router-net
         - traefik.constraint-label=router-net
-        - traefik.http.routers.router-net.rule=Host(`${DNS?Variable not set}`)
-        - traefik.http.routers.router-net.entrypoints=https
-        - traefik.http.routers.portainer-https.tls
+        - traefik.http.routers.portainer-https.rule=Host(`${DNS?Variable not set}`)
+        - traefik.http.routers.portainer-https.entrypoints=https
+        - traefik.http.routers.portainer-https.tls=true
         - traefik.http.services.portainer.loadbalancer.server.port=9000
 
 networks:
@@ -51,7 +51,8 @@ networks:
 
 volumes:
   nfs-data-portainer:
-    driver_opts:
-      type: "nfs"
-      o: "addr=${NFS_SERVER},nolock,soft,rw"
-      device: ":/nfs-data/portainer"
+    ### If you want use NFS uncomment
+    # driver_opts:
+    #   type: "nfs"
+    #   o: "addr=${NFS_SERVER},nolock,soft,rw"
+    #   device: ":/nfs-data/portainer"

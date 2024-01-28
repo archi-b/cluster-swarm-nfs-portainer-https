@@ -35,14 +35,24 @@ Cluster Swarm with Portainer, Traefik HTTP/HTTPS and a NFS Server
 `cd cluster-swarm-nfs-portainer-https/`
 
 ### Config a first Swarm node
-`sudo docker swarm init --advertise-addr 192.168.56.10`
+`sudo docker swarm init`
+
 ### Create a network "router-net"
 `docker network create -d overlay --subnet 10.1.0.0/16 router-net`
+# Configure /etc/hosts in all nodes. Change <ROUTER_IP>
+`echo "127.0.0.1       portainer.vm.com.br" >> /etc/hosts`
+`echo "127.0.0.1       traefik.vm.com.br" >> /etc/hosts`
+# If not works, change 127.0.1 to ip inside router-net.Peers.IP ###
+`docker network inspect router-net`
+
 ### Deploy Stack "Traefik"
 `DNS=traefik.vm.com.br USER=admin HASHED_PASSWORD=$(openssl passwd -apr1 admin123) docker stack deploy -c docker-compose-traefik.yml traefik`
 ### Deploy Stack "Portainer-ce"
 `DNS=portainer.vm.com.br NFS_SERVER=192.168.56.13 docker stack deploy -c docker-compose-portainer.yml portainer-ce`
 
-# Configure /etc/hosts in all nodes
-`echo "127.0.0.1       portainer.vm.com.br" >> /etc/hosts`
-`echo "127.0.0.1       traefik.vm.com.br" >> /etc/hosts`
+### Testing your DOMAINS ###
+`curl -vvv traefik.vm.com.br`
+`curl -vvv portainer.vm.com.br`
+
+### Now testing the DOMAINS in your Browser ###
+# Open your browser and access "traefik.vm.com.br" and "portainer.vm.com.br" 
